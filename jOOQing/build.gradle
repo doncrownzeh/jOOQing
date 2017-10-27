@@ -1,0 +1,62 @@
+
+apply plugin: 'java'
+apply plugin: "io.ratpack.ratpack-java"
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+	runtime "org.slf4j:slf4j-simple:1.7.25"
+	runtime 'com.h2database:h2:1.4.177'
+    compile 'org.jooq:jooq:3.10.0'
+    testCompile 'junit:junit:4.11'
+    compile group: 'postgresql', name: 'postgresql', version: '9.1-901-1.jdbc4'
+    compile group: 'javax.mail', name: 'mail', version: '1.4.1'
+}
+
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+        
+    }
+
+    dependencies {
+   		classpath 'postgresql:postgresql:9.1-901-1.jdbc4'
+        classpath 'org.jooq:jooq-codegen:3.10.0'
+        classpath "io.ratpack:ratpack-gradle:1.5.0"
+        classpath 'com.h2database:h2:1.4.177'
+    }
+}
+
+def writer = new StringWriter()
+def xml = new groovy.xml.MarkupBuilder(writer)
+.configuration('xmlns': 'http://www.jooq.org/xsd/jooq-codegen-3.10.0.xsd') {
+    jdbc() {
+        driver('org.postgresql.Driver')
+        url('jdbc:postgresql://localhost:5432/workout')
+        user('postgres')
+        password('dbpass')
+    }
+    generator() {
+        database() {
+        }
+
+        generate([:]) {
+            pojos true
+            daos true
+        }
+        target() {
+            packageName('my.db')
+            directory('src/main/java')
+        }
+    }
+}
+
+org.jooq.util.GenerationTool.generate(
+    javax.xml.bind.JAXB.unmarshal(new StringReader(writer.toString()), org.jooq.util.jaxb.Configuration.class)
+)
