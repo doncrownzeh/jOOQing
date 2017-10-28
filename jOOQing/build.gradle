@@ -5,15 +5,13 @@ apply plugin: "io.ratpack.ratpack-java"
 repositories {
     mavenLocal()
     mavenCentral()
-    jcenter()
 }
 
 dependencies {
-	runtime "org.slf4j:slf4j-simple:1.7.25"
-	runtime 'com.h2database:h2:1.4.177'
+    runtime "org.slf4j:slf4j-simple:1.7.25"
     compile 'org.jooq:jooq:3.10.0'
     testCompile 'junit:junit:4.11'
-    compile group: 'postgresql', name: 'postgresql', version: '9.1-901-1.jdbc4'
+    compile group: 'org.postgresql', name: 'postgresql', version: '42.1.1'
     compile group: 'javax.mail', name: 'mail', version: '1.4.1'
 }
 
@@ -21,21 +19,19 @@ buildscript {
     repositories {
         mavenLocal()
         mavenCentral()
-        jcenter()
-        
+
     }
 
     dependencies {
-   		classpath 'postgresql:postgresql:9.1-901-1.jdbc4'
         classpath 'org.jooq:jooq-codegen:3.10.0'
         classpath "io.ratpack:ratpack-gradle:1.5.0"
-        classpath 'com.h2database:h2:1.4.177'
+        classpath 'org.postgresql:postgresql:9.3-1102-jdbc41'
     }
 }
 
 def writer = new StringWriter()
 def xml = new groovy.xml.MarkupBuilder(writer)
-.configuration('xmlns': 'http://www.jooq.org/xsd/jooq-codegen-3.10.0.xsd') {
+        .configuration('xmlns': 'http://www.jooq.org/xsd/jooq-codegen-3.10.0.xsd') {
     jdbc() {
         driver('org.postgresql.Driver')
         url('jdbc:postgresql://localhost:5432/workout')
@@ -58,5 +54,5 @@ def xml = new groovy.xml.MarkupBuilder(writer)
 }
 
 org.jooq.util.GenerationTool.generate(
-    javax.xml.bind.JAXB.unmarshal(new StringReader(writer.toString()), org.jooq.util.jaxb.Configuration.class)
+        javax.xml.bind.JAXB.unmarshal(new StringReader(writer.toString()), org.jooq.util.jaxb.Configuration.class)
 )
