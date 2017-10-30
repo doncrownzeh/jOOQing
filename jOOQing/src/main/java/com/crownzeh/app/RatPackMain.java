@@ -1,10 +1,9 @@
 package com.crownzeh.app;
 
-import com.crownzeh.app.mail.MailComposer;
+import com.crownzeh.app.mail.ProxySender;
 import com.crownzeh.app.task.CustomTimerTask;
 import ratpack.server.RatpackServer;
 
-import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -18,10 +17,8 @@ public class RatPackMain {
                         .get(":name", ctx -> ctx.render("Hello " + ctx.getPathTokens().get("name") + "!"))
                 )
         );
-        Connection connection = DatabaseConnector.connectToDatabse();
-        //ProxySender mailSender = new ProxySender();
-        MailComposer mailComposer = new MailComposer(connection);
-        mailComposer.printUsers();
+        ProxySender sender = new ProxySender();
+        //sender.sendToAll();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd, HH:mm:ss");
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());

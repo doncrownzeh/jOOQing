@@ -5,9 +5,14 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnector {
+    public static Connection getConnection() {
+        return connection;
+    }
 
-    public static Connection connectToDatabse() {
-        Connection connection = null;
+    private static Connection connection;
+
+    public static void connectToDatabse() {
+        connection = null;
         try {
             try {
                 Class.forName("org.postgresql.Driver");
@@ -22,10 +27,18 @@ public class DatabaseConnector {
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());
-        } finally {
-            System.out.println("DatabaseConnector has finished his work.");
         }
-        return connection;
+
+    }
+
+    public static void closeConnection(){
+        try {
+            connection.close();
+            System.out.println("DatabaseConnector has finished its life.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
     }
 
 
