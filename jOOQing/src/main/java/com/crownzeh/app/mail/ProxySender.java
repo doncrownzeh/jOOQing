@@ -8,11 +8,11 @@ public class ProxySender implements MailSender {
     }
 
     @Override
-    public void sendMail(String recipient, String header, String body) {
+    public void sendToAll() {
         if (realSender == null) {
             realSender = new RealSender();
         }
-        realSender.sendMail(recipient, header, body);
+        realSender.sendToAll();
 
     }
 

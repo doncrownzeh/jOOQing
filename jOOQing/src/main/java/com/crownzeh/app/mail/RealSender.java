@@ -1,8 +1,15 @@
 package com.crownzeh.app.mail;
 
+import com.crownzeh.app.DatabaseConnector;
+import my.db.public_.Tables;
+import org.jooq.DSLContext;
+import org.jooq.Record;
+import org.jooq.Result;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import java.util.Properties;
 
 public class RealSender implements MailSender {
@@ -14,7 +21,7 @@ public class RealSender implements MailSender {
     private final String PORT;
     private final Session session;
 
-    public RealSender() {
+    RealSender() {
 
         SENDER = "current.workout@gmail.com";
         USERNAME = "current.workout";
@@ -36,22 +43,25 @@ public class RealSender implements MailSender {
     }
 
     @Override
-    public void sendMail(String recipient, String header, String body) {
+    public void sendToAll() {
         try {
-            recipient = "jakub.krzetowski@gmail.com";
-            Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(SENDER));
-            message.setRecipients(Message.RecipientType.TO,
-                    InternetAddress.parse(recipient));
-            message.setSubject(header);
-            message.setText(body);
-            Transport.send(message);
-            System.out.println("Mail sent succesfully!");
+            DatabaseConnector.connectToDatabse();
+            DSLContext create = DSL.using(DatabaseConnector.getConnection(), SQLDialect.POSTGRES_9_3);
+            MailComposer composer = new MailComposer();
+            Result<Record> result = create.select().from(Tables.USERS).fetch();
+            for (Record r : result) {
+                Message message = composer.compose(session, r);
+                message.setFrom(new InternetAddress(SENDER));
+                Transport.send(message);
+                System.out.println("Mail sent successfully to " + r.getValue(Tables.USERS.EMAIL) + "!");
+            }
         } catch (MessagingException e) {
             System.out.println("Something's fucked up, sorry");
             throw new RuntimeException(e);
         }
+        DatabaseConnector.closeConnection();
     }
+
 
 
 }
